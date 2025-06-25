@@ -4,8 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { READS_QC                    } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
-include { READS_QC as READS_QC_MERGE  } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
+include { READS_QC                    } from '../subworkflows/ebi-metagenomics/reads_qc/main'
+include { READS_QC as READS_QC_MERGE  } from '../subworkflows/ebi-metagenomics/reads_qc/main'
 
 
 /*
@@ -13,13 +13,13 @@ include { READS_QC as READS_QC_MERGE  } from '../subworkflows/ebi-metagenomics/r
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { FASTQC as FASTQC_RAW       } from '../modules/nf-core/fastqc/main'
-include { FASTQC as FASTQC_CLEAN     } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                    } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap           } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML     } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText     } from '../subworkflows/local/utils_nfcore_edna_pipeline'
+include { FASTQC as FASTQC_RAW        } from '../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_CLEAN      } from '../modules/nf-core/fastqc/main'
+include { paramsSummaryMap            } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore_edna_pipeline'
+include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -33,25 +33,8 @@ workflow EDNA {
     samplesheet // channel: samplesheet read in from --input
     main:
     
-
-    // Read input samplesheet and validate it using schema_input.json //
-    //samplesheet = Channel.fromList(samplesheetToList(ch_samplesheet, "./assets/schema_input.json"))
-
     ch_versions = Channel.empty()
-     
-    /*
-    // Organise input tuple channel //
-    groupReads = { meta, fq1, fq2 ->
-        if (fq2 == []) {
-            return tuple(meta, [fq1])
-        }
-        else {
-            return tuple(meta, [fq1, fq2])
-        }
-    }
-
-    ch_input = samplesheet.map(groupReads)
-     */
+    ch_multiqc_files = Channel.empty()
      
     FASTQC_RAW(
         samplesheet
@@ -63,7 +46,7 @@ workflow EDNA {
 
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
-        true, // check if amplicon
+        true, 
         samplesheet,
         true // merge
     )
@@ -71,7 +54,7 @@ workflow EDNA {
 
     // Run it again without merging to keep PE files unmerged for primer trimming+DADA2 //
     READS_QC(
-        false, // check if amplicon
+        false, 
         samplesheet,
         false // merge
     )
@@ -85,24 +68,16 @@ workflow EDNA {
                             .set { extended_reads_qc }
     
     FASTQC_CLEAN(
-         READS_QC_MERGE.out.reads
+        READS_QC_MERGE.out.reads
     )
     fastqc_clean_html = FASTQC_CLEAN.out.html
     fastqc_clean_zip = FASTQC_CLEAN.out.zip
     ch_versions = ch_versions.mix(FASTQC_CLEAN.out.versions.first())
 
-/*
-    // nf-core template
 
-    ch_multiqc_files = Channel.empty()
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        ch_samplesheet
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_CLEAN.out.zip.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(READS_QC_MERGE.out.fastp_summary_json.map { it[1] })
+    ch_versions = ch_versions.mix(FASTQC_CLEAN.out.versions.first())
 
     //
     // Collate and save software versions
@@ -110,7 +85,7 @@ workflow EDNA {
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_'  +  'edna_software_'  + 'mqc_'  + 'versions.yml',
+            name: 'edna_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
@@ -156,13 +131,9 @@ workflow EDNA {
         []
     )
 
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-*/
-
-   versions       = ch_versions                 // channel: [ path(versions.yml) ]
-
-
 
 }
 

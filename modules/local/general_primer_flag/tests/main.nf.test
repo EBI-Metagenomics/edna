@@ -1,0 +1,34 @@
+nextflow_process {
+
+    name "Test Process GENERAL_PRIMER_FLAG"
+    script "../main.nf"
+    process "GENERAL_PRIMER_FLAG"
+    tag "modules"
+    tag "general_primer_flag"
+
+    test("Should take a fastq.gz file and try to identify whether primers exist in general, outputting a .txt file containing true/false values for both directions") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false, var_region:'16S-V3-V4' ], // meta map
+                    file('${projectDir}/modules/local/std_primer_flag/tests/data/test.fastq.gz', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.general_primer_out).match("general_primer_out") }
+            )
+        }
+
+    }
+
+}

@@ -1,0 +1,21 @@
+{
+    "general_primer_out": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "var_region": "16S-V3-V4"
+                    },
+                    "test_16S-V3-V4_general_primer_out.txt:md5,f2160c8ffedf48068f2e1137e0a3a7e7"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2025-03-25T11:29:39.559975639"
+    }
+}

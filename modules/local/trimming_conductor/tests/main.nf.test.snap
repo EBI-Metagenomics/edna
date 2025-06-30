@@ -1,0 +1,21 @@
+{
+    "trimming_conductor_out": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "var_region": "16S-V3-V4"
+                    },
+                    "test_trimming_conductor_out_16S-V3-V4.txt:md5,d0dd56ac864be40ec2c5b2bbcdfaeb52"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2025-03-24T16:46:46.164307134"
+    }
+}

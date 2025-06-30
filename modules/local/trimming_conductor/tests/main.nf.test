@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test Process TRIMMING_CONDUCTOR"
+    script "../main.nf"
+    process "TRIMMING_CONDUCTOR"
+    tag "modules"
+    tag "trimming_conductor"
+
+    test("Should take results of both general and std primer flagging processes and output a decision about if/where/how to trim primers, generating an output file containing the decision for each direction") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false, var_region:"16S-V3-V4" ], // meta map
+                    file('${projectDir}/modules/local/trimming_conductor/tests/data/test_general_primer_out.txt', checkIfExists: true),
+                    file('${projectDir}/modules/local/trimming_conductor/tests/data/test_std_primers.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.trimming_conductor_out).match("trimming_conductor_out") }
+            )
+        }
+
+    }
+
+}

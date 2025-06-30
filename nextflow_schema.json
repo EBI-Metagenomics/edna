@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/edna/master/nextflow_schema.json",
-    "title": "nf-core/edna pipeline parameters",
+    "title": "eDNA pipeline parameters",
     "description": "The coolest eDNA pipeline",
     "type": "object",
     "$defs": {
@@ -81,6 +81,20 @@
                     "default": "s3://ngi-igenomes/igenomes/"
                 }
             }
+        },
+         "ref_dbs": {
+         "title": "Ref DBs",
+         "type": "object",
+         "description": "Paths to the different reference databases needed for the pipeline",
+         "default": "",
+         "properties": {
+             "std_primer_library": {
+             "type": "string",
+             "format": "directory-path",
+             "description": "Path to standard primer library",
+             "default": "./data/standard_primers"
+             }
+         }
         },
         "institutional_config_options": {
             "title": "Institutional config options",

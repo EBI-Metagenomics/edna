@@ -20,8 +20,9 @@ include { paramsSummaryMultiqc         } from '../subworkflows/nf-core/utils_nfc
 include { softwareVersionsToYAML       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText       } from '../subworkflows/local/utils_nfcore_edna_pipeline'
 include { PRIMER_IDENTIFICATION        } from '../subworkflows/local/primer_identification_swf.nf'
-//include { AUTOMATIC_PRIMER_PREDICTION  } from '../subworkflows/local/automatic_primer_prediction.nf'
-//include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
+include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
+include { READSMERGE                   } from '../subworkflows/local/readsmerge/main'
+include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
 /*
@@ -92,38 +93,50 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(PRIMER_IDENTIFICATION.out.versions)
      
-    /*
-    // Join primer identification flags with reads belonging to each run+amp_region //
-    auto_trimming_input = PRIMER_IDENTIFICATION.out.conductor_out
-                          .join(AMP_REGION_INFERENCE.out.extracted_var_out, by: [0])
-
-    
-    //Run subworkflow for automatic primer prediction
-    //Outputs empty fasta file if no primers, or fasta file containing predicted primers
-    
-    AUTOMATIC_PRIMER_PREDICTION(
-        auto_trimming_input
-    )
-    ch_versions = ch_versions.mix(AUTOMATIC_PRIMER_PREDICTION.out.versions)
-
-    // Concatenate the different combinations of stranded std/auto primers for each run+amp_region //
-    concat_input = PRIMER_IDENTIFICATION.out.std_primer_out
-                   .join(AUTOMATIC_PRIMER_PREDICTION.out.auto_primer_trimming_out, by: [0])
-
-    // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
+     // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
     CONCAT_PRIMER_CUTADAPT(
-        concat_input,
+        PRIMER_IDENTIFICATION.out.std_primer_out,
         READS_QC.out.reads
     )
     ch_versions = ch_versions.mix(CONCAT_PRIMER_CUTADAPT.out.versions)
+    
+
+    // Pfam profiling
+    pfam_db = params.pfam_coi_db ?
+    Channel
+        .fromPath(params.pfam_coi_db, checkIfExists: true)
+        .first() :
+    Channel.empty()
+    //pfam_db.view { "pfam_db: ${it}" }
+    
+    // Add this to inspect the output:
+    //CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
+
+    READSMERGE(CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
+
+    
+    //READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
+
+    PROFILE_HMMSEARCH_PFAM(
+        READSMERGE.out.reads_fasta,
+        pfam_db
+    )
 
 
-    // Run the large dada2 imput preparation function //
-    cutadapt_channel = CONCAT_PRIMER_CUTADAPT.out.cutadapt_out
-                       .map { meta, reads -> 
-                         [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
-                       }
-    */
+/*
+    PRIMER_IDENTIFICATION.out.std_primer_out
+    .map { meta, fasta -> tuple(meta, file(fasta)) }
+    .set { primer_fasta_input }
+
+    primer_fasta_input.view { "primer_fasta_input: ${it}" }
+
+
+    PROFILE_HMMSEARCH_PFAM(
+        CONCAT_PRIMER_CUTADAPT.out.cutadapt_out,
+        pfam_db
+    )
+    ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
+*/
     //
     // MODULE: MultiQC
     //

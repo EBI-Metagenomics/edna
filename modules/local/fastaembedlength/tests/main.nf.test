@@ -1,0 +1,95 @@
+nextflow_process {
+
+    name "Test Process FASTAEMBEDLENGTH"
+    script "../main.nf"
+    process "FASTAEMBEDLENGTH"
+
+    tag "modules"
+    tag "modules_"
+    tag "fastaembedlength"
+
+    test("mini sample fasta should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/fastaembedlength/ERR10889147_mini_1.fa.gz", checkIfExists: true)
+		]
+		input[1] = file("${projectDir}/bin/fastx_embed_length.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+    test("mini sample fastq should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/fastaembedlength/ERR10889147_mini_1.fq.gz", checkIfExists: true)
+		]
+		input[1] = file("${projectDir}/bin/fastx_embed_length.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+    test("synthetic sample fasta should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/fastaembedlength/synthetic_test.fa.gz", checkIfExists: true)
+		]
+		input[1] = file("${projectDir}/bin/fastx_embed_length.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+    test("synthetic sample fastq should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/fastaembedlength/synthetic_test.fq.gz", checkIfExists: true)
+		]
+		input[1] = file("${projectDir}/bin/fastx_embed_length.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+}

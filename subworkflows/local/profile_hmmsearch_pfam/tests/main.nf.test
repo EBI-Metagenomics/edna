@@ -1,0 +1,128 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PROFILE_HMMSEARCH_PFAM"
+    script "../main.nf"
+    workflow "PROFILE_HMMSEARCH_PFAM"
+
+    tag "subworkflows"
+    tag "subworkflows_"
+    tag "subworkflows/profile_hmmsearch_pfam"
+
+
+    test("mini sample 1 with some matches should match snapshot") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+		    [
+		        ['id': 'test1', 'single_end': false, 'platform': 'wgs'],
+	                file("${projectDir}/tests/fixtures/profile_hmmsearch_pfam/ERR10889147.mini.fasta.gz", checkIfExists: true),
+		    ]
+		)
+		input[1] = Channel.value(
+		    file("${projectDir}/tests/fixtures/dbs/pfam_mini/Pfam-A.hmm", checkIfExists: true)
+		)
+                """
+            }
+        }
+
+        then {
+	    def profile = workflow.out.profile.collect{ meta, fp -> [meta, file(fp).text.readLines().sort()] }
+
+            assert workflow.success
+            assert snapshot(
+                profile,
+		workflow.out.versions
+	    ).match()
+        }
+    }
+    
+    test("mini sample 2 with some matches should match snapshot") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+		    [
+		        ['id': 'test1', 'single_end': false, 'platform': 'wgs'],
+	                file("${projectDir}/tests/fixtures/profile_hmmsearch_pfam/ERR10889056.mini.fasta.gz", checkIfExists: true),
+		    ]
+		)
+		input[1] = Channel.value(
+		    file("${projectDir}/tests/fixtures/dbs/pfam_mini/Pfam-A.hmm", checkIfExists: true)
+		)
+                """
+            }
+        }
+
+        then {
+	    def profile = workflow.out.profile.collect{ meta, fp -> [meta, file(fp).text.readLines().sort()] }
+
+            assert workflow.success
+            assert snapshot(
+                profile,
+		workflow.out.versions
+	    ).match()
+        }
+    }
+    
+    test("mini sample 1 with no matches should match snapshot") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+		    [
+		        ['id': 'test1', 'single_end': false, 'platform': 'wgs'],
+	                file("${projectDir}/tests/fixtures/profile_hmmsearch_pfam/ERR10889147.not_matches.fasta.gz", checkIfExists: true),
+		    ]
+		)
+		input[1] = Channel.value(
+		    file("${projectDir}/tests/fixtures/dbs/pfam_mini/Pfam-A.hmm", checkIfExists: true)
+		)
+                """
+            }
+        }
+
+        then {
+	    def profile = workflow.out.profile.collect{ meta, fp -> [meta, file(fp).text.readLines().size()] }
+
+            assert workflow.success
+            assert snapshot(
+                profile,
+		workflow.out.versions
+	    ).match()
+        }
+    }
+    
+    test("mini sample 2 with no matches should match snapshot") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+		    [
+		        ['id': 'test1', 'single_end': false, 'platform': 'wgs'],
+	                file("${projectDir}/tests/fixtures/profile_hmmsearch_pfam/ERR10889056.not_matches.fasta.gz", checkIfExists: true),
+		    ]
+		)
+		input[1] = Channel.value(
+		    file("${projectDir}/tests/fixtures/dbs/pfam_mini/Pfam-A.hmm", checkIfExists: true)
+		)
+                """
+            }
+        }
+
+        then {
+	    def profile = workflow.out.profile.collect{ meta, fp -> [meta, file(fp).text.readLines().size()] }
+
+            assert workflow.success
+            assert snapshot(
+                profile,
+		workflow.out.versions
+	    ).match()
+        }
+    }
+    
+}

@@ -1,0 +1,87 @@
+nextflow_process {
+
+    name "Test Process COMBINEHMMSEARCHTBL"
+    script "../main.nf"
+    process "COMBINEHMMSEARCHTBL"
+
+    tag "modules"
+    tag "modules_"
+    tag "combinehmmsearchtbl"
+
+    test("one domtbl should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    [
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		    ]
+		]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+    test("two domtbls should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    [
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		    ]
+		]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+    test("10 domtbls should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    [
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/combinehmmsearchtbl/ERR10889197_mini.domtbl", checkIfExists: true),
+		    ]
+		]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+}

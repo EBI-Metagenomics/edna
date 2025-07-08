@@ -93,6 +93,14 @@
              "format": "directory-path",
              "description": "Path to standard primer library",
              "default": "./data/standard_primers"
+             },
+             "pfam_coi_db": {
+                "type": "string",
+                "format": "file-path",
+                "description": "Path to Pfam HMM file for COI profiling",
+                "pattern": "\\.hmm(\\.gz)?$",
+                "help_text": "Provide the HMM profile database file (.hmm) for Pfam domain searches on translated COI reads.",
+                "default": "./databases/pfam/pfam_coi.hmm"
              }
          }
         },

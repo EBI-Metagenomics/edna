@@ -1,0 +1,49 @@
+nextflow_process {
+    name "Test Process PARSEHMMSEARCHCOVERAGE"
+    script "../main.nf"
+    process "PARSEHMMSEARCHCOVERAGE"
+
+    tag "modules"
+    tag "modules_"
+    tag "parsehmmsearchcoverage"
+
+    test("mini sample should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/parsehmmsearchcoverage/ERR10889056_mini.domtbl.gz", checkIfExists: true),
+		]
+		input[1] = file("${projectDir}/bin/hmmer_domtbl_parse_coverage.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+    }
+
+    test("edge-cases synthetic sample should match snapshot") {
+
+        when {
+            process {
+                """
+                input[0] = [
+		    ['id': 'test'],
+		    file("${projectDir}/tests/fixtures/parsehmmsearchcoverage/synthetic_edgecase_test.domtbl.gz", checkIfExists: true),
+		]
+		input[1] = file("${projectDir}/bin/hmmer_domtbl_parse_coverage.py")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+    }
+}

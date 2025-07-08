@@ -1,0 +1,83 @@
+{
+    "10 domtbls should match snapshot": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,2e16ac4e90acd642a8ff8aef15ac8611"
+                    ]
+                ],
+                "concatenated_result": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,2e16ac4e90acd642a8ff8aef15ac8611"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.2"
+        },
+        "timestamp": "2025-05-20T14:06:32.631716346"
+    },
+    "one domtbl should match snapshot": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,a433f5f0ab57cc5837c9cbdf0ca9ffae"
+                    ]
+                ],
+                "concatenated_result": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,a433f5f0ab57cc5837c9cbdf0ca9ffae"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.2"
+        },
+        "timestamp": "2025-05-20T14:06:03.223315833"
+    },
+    "two domtbls should match snapshot": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,1f23a563727db2fd916808549355898a"
+                    ]
+                ],
+                "concatenated_result": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "ERR10889197_mini.domtbl:md5,1f23a563727db2fd916808549355898a"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.2"
+        },
+        "timestamp": "2025-05-20T14:06:18.012631179"
+    }
+}

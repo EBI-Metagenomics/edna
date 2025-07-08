@@ -1,0 +1,107 @@
+nextflow_workflow {
+
+    name "Test Subworkflow READSMERGE"
+    script "../main.nf"
+    workflow "READSMERGE"
+
+    tag "subworkflows"
+    tag "subworkflows_"
+    tag "subworkflows/readsmerge"
+
+
+    test("mixed paired-end mini sample output should match snapshot") {
+
+        when {
+	    params {
+	        remove_phix = true
+	    }
+            workflow {
+                """
+                input[0] = Channel.of([
+		    ['id': 'test', 'single_end': false, 'platform': 'wgs'],
+		    [
+		        file("${projectDir}/tests/fixtures/readsmerge/ERR10889188_1_mixed.fq.gz", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/readsmerge/ERR10889188_2_mixed.fq.gz", checkIfExists: true),
+		    ]
+		])
+                """
+            }
+        }
+
+        then {
+	    def reads = path(workflow.out.reads.get(0)[1])
+	        .linesGzip
+	        .sort()
+
+            assert workflow.success
+            assert snapshot(
+                reads, 
+		workflow.out.versions
+	    ).match()
+        }
+
+    }
+
+    test("mixed single-end mini sample output should match snapshot") {
+
+        when {
+	    params {
+	        remove_phix = true
+	    }
+            workflow {
+                """
+                input[0] = Channel.of([
+		    ['id': 'test', 'single_end': true, 'platform': 'wgs'],
+		    file("${projectDir}/tests/fixtures/readsmerge/ERR10889188_1_mixed.fq.gz", checkIfExists: true),
+		])
+                """
+            }
+        }
+
+        then {
+	    def reads = path(workflow.out.reads.get(0)[1])
+	        .linesGzip
+	        .sort()
+
+            assert workflow.success
+            assert snapshot(
+                reads, 
+		workflow.out.versions
+	    ).match()
+        }
+
+    }
+
+    test("paired-end mini sample with no merges, output should match snapshot") {
+
+        when {
+	    params {
+	        remove_phix = true
+	    }
+            workflow {
+                """
+                input[0] = Channel.of([
+		    ['id': 'test', 'single_end': false, 'platform': 'wgs'],
+		    [
+		        file("${projectDir}/tests/fixtures/readsmerge/ERR10889188_1_not_merging.fq.gz", checkIfExists: true),
+		        file("${projectDir}/tests/fixtures/readsmerge/ERR10889188_2_not_merging.fq.gz", checkIfExists: true),
+		    ]
+		])
+                """
+            }
+        }
+
+        then {
+	    def reads = path(workflow.out.reads.get(0)[1])
+	        .linesGzip
+	        .sort()
+
+            assert workflow.success
+            assert snapshot(
+                reads, 
+		workflow.out.versions
+	    ).match()
+        }
+
+    }
+}

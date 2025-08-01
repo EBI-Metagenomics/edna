@@ -25,6 +25,12 @@ include { READSMERGE                   } from '../subworkflows/local/readsmerge/
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
+// Import samplesheetToList from nf-schema //
+include { samplesheetToList            } from 'plugin/nf-schema'
+
+// Import reads_merged_input_prep function (it's very big and deserved to be in its own file) //
+include { reads_merged_input_prep      } from '../bin/reads_merged_input_prep.nf'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -40,6 +46,7 @@ workflow EDNA {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+     
     // Initialiase standard primer library for PIMENTO if user-given//
     // If there are no primers provided, it will fallback to use the default PIMENTO standard primer library
     std_primer_library = []
@@ -58,7 +65,7 @@ workflow EDNA {
 
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
-        true, 
+        false, 
         samplesheet,
         true // merge
     )
@@ -73,12 +80,19 @@ workflow EDNA {
     ch_versions = ch_versions.mix(READS_QC.out.versions)
 
     // Removes reads that passed sanity checks but are empty after QC with fastp //
-    READS_QC_MERGE.out.reads_fasta.branch{ _meta, reads ->
-                                qc_pass: reads.countFasta() > 0
-                                qc_empty: reads.countFasta() == 0
+    READS_QC_MERGE.out.reads_se_and_merged.branch{ _meta, reads ->
+                                qc_pass: reads.countFastq() > 0
+                                qc_empty: reads.countFastq() == 0
                             }
                             .set { extended_reads_qc }
+    //extended_reads_qc.qc_pass.view { "qc_pass: ${it}" }
     
+    //extended_reads_qc.qc_empty.view { "qc_empty: ${it}" }
+
+
+    //READS_QC_MERGE.out.reads_fasta.view { "reads_fasta: ${it}" }
+    //READS_QC_MERGE.out.reads_se_and_merged.view { "reads_se_and_merged: ${it}" }
+
     FASTQC_CLEAN(
         READS_QC_MERGE.out.reads
     )
@@ -93,13 +107,26 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(PRIMER_IDENTIFICATION.out.versions)
      
-     // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
+    // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
     CONCAT_PRIMER_CUTADAPT(
         PRIMER_IDENTIFICATION.out.std_primer_out,
         READS_QC.out.reads
     )
     ch_versions = ch_versions.mix(CONCAT_PRIMER_CUTADAPT.out.versions)
     
+   
+    
+    // Add this to inspect the output:
+    CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
+    
+    reads_merge_input = reads_merged_input_prep(READS_QC.out.reads, CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
+    
+    reads_merge_input.view { "reads_merge_input: ${it}" }
+
+    READSMERGE(reads_merge_input)
+    ch_versions = ch_versions.mix(READSMERGE.out.versions)
+    
+    READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
 
     // Pfam profiling
     pfam_db = params.pfam_coi_db ?
@@ -108,35 +135,14 @@ workflow EDNA {
         .first() :
     Channel.empty()
     //pfam_db.view { "pfam_db: ${it}" }
-    
-    // Add this to inspect the output:
-    //CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
-
-    READSMERGE(CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
 
     
-    //READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
-
     PROFILE_HMMSEARCH_PFAM(
         READSMERGE.out.reads_fasta,
         pfam_db
     )
-
-
-/*
-    PRIMER_IDENTIFICATION.out.std_primer_out
-    .map { meta, fasta -> tuple(meta, file(fasta)) }
-    .set { primer_fasta_input }
-
-    primer_fasta_input.view { "primer_fasta_input: ${it}" }
-
-
-    PROFILE_HMMSEARCH_PFAM(
-        CONCAT_PRIMER_CUTADAPT.out.cutadapt_out,
-        pfam_db
-    )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
-*/
+    
     //
     // MODULE: MultiQC
     //

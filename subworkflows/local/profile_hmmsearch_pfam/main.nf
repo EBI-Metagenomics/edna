@@ -13,8 +13,9 @@ workflow PROFILE_HMMSEARCH_PFAM {
     main:
     ch_versions = Channel.empty()
     FASTAEMBEDLENGTH(reads_fasta, file("${projectDir}/bin/fastx_embed_length.py"))
+    
     SEQKIT_TRANSLATE(FASTAEMBEDLENGTH.out.fasta)
-
+    
     ch_chunked_pfam_in = SEQKIT_TRANSLATE.out.fastx
         .flatMap{ meta, fasta ->
              def chunks = fasta.splitFasta(file: true, size: params.hmmsearch_chunksize)

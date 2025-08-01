@@ -170,6 +170,12 @@
                     "description": "Version of PIMENTO to be used",
                     "default": "1.0.2--pyhdfd78af_0"
                 },
+                "hmmsearch_chunksize": {
+                    "type": "string",
+                    "description": "Chunk size for HMMER hmmsearch process (e.g. 400.KB, 1.MB)",
+                    "default": "400.KB",
+                    "pattern": "^[0-9]+\\.(KB|MB|GB)$"
+                },
                 "publish_dir_mode": {
                     "type": "string",
                     "default": "copy",

@@ -89,6 +89,13 @@ workflow EDNA {
     
     //extended_reads_qc.qc_empty.view { "qc_empty: ${it}" }
 
+    READS_QC_MERGE.out.reads_se_and_merged
+    .map { meta, reads ->
+        def count = reads.countFastq()
+        [ meta, count ]
+    }
+    
+    //READS_QC_MERGE.out.fastp_summary_json.view { "fastp_summary_json: ${it}" }
 
     //READS_QC_MERGE.out.reads_fasta.view { "reads_fasta: ${it}" }
     //READS_QC_MERGE.out.reads_se_and_merged.view { "reads_se_and_merged: ${it}" }
@@ -117,16 +124,16 @@ workflow EDNA {
    
     
     // Add this to inspect the output:
-    CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
+    //CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
     
     reads_merge_input = reads_merged_input_prep(READS_QC.out.reads, CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
     
-    reads_merge_input.view { "reads_merge_input: ${it}" }
+    //reads_merge_input.view { "reads_merge_input: ${it}" }
 
     READSMERGE(reads_merge_input)
     ch_versions = ch_versions.mix(READSMERGE.out.versions)
     
-    READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
+    //READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
 
     // Pfam profiling
     pfam_db = params.pfam_coi_db ?
@@ -139,7 +146,8 @@ workflow EDNA {
     
     PROFILE_HMMSEARCH_PFAM(
         READSMERGE.out.reads_fasta,
-        pfam_db
+        pfam_db,
+        READSMERGE.out.fastp_summary_json
     )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
     

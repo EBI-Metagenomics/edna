@@ -9,6 +9,7 @@ process PARSEHMMSEARCHCOVERAGE {
 
     input:
     tuple val(meta), path(domtbl_file)
+    tuple val(meta), path(fastp_json)
     path script
 
     output:
@@ -19,7 +20,7 @@ process PARSEHMMSEARCHCOVERAGE {
     def args = task.ext.args ?: ''
     out_fp = "${meta.id}_pfam_coverage.tsv"
     """
-    gunzip -c ${domtbl_file} | python ${script} ${args} -i - -o ${out_fp}
+    gunzip -c ${domtbl_file} | python ${script} ${args} -j ${fastp_json} -i - -o ${out_fp}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

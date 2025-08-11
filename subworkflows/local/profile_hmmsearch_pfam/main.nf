@@ -32,11 +32,7 @@ workflow PROFILE_HMMSEARCH_PFAM {
         HMMER_HMMSEARCH.out.domain_summary.groupTuple()
     )
 
-    //PARSEHMMSEARCHCOVERAGE reads_json.view { "reads_json: ${it}" }
-
-    //COMBINEHMMSEARCHTBL.out.concatenated_result.view { "COMBINEHMMSEARCHTBL.out.concatenated_result: ${it}" }
-    PARSEHMMSEARCHCOVERAGE(COMBINEHMMSEARCHTBL.out.concatenated_result, reads_json, file("${projectDir}/bin/hmmer_domtbl_parse_coverage.py"))
-    //PARSEHMMSEARCHCOVERAGE(COMBINEHMMSEARCHTBL.out.concatenated_result, file("${projectDir}/bin/hmmer_domtbl_parse_coverage.py"))
+    PARSEHMMSEARCHCOVERAGE(COMBINEHMMSEARCHTBL.out.concatenated_result.join(reads_json), file("${projectDir}/bin/hmmer_domtbl_parse_coverage.py"))
     ch_versions = ch_versions.mix(PARSEHMMSEARCHCOVERAGE.out.versions)
 
     emit:

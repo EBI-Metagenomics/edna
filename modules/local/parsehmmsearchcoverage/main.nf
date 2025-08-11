@@ -8,8 +8,7 @@ process PARSEHMMSEARCHCOVERAGE {
         : 'quay.io/biocontainers/python:3.13'}"
 
     input:
-    tuple val(meta), path(domtbl_file)
-    tuple val(meta), path(fastp_json)
+    tuple val(meta), path(domtbl_file), path(fastp_json)
     path script
 
     output:

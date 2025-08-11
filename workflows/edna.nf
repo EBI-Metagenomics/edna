@@ -6,6 +6,7 @@
 
 include { READS_QC                     } from '../subworkflows/ebi-metagenomics/reads_qc/main'
 include { READS_QC as READS_QC_MERGE   } from '../subworkflows/ebi-metagenomics/reads_qc/main'
+include { READS_QC as READS_QC_MERGE_BEFOREHMM   } from '../subworkflows/ebi-metagenomics/reads_qc/main'
 
 
 /*
@@ -21,7 +22,6 @@ include { softwareVersionsToYAML       } from '../subworkflows/nf-core/utils_nfc
 include { methodsDescriptionText       } from '../subworkflows/local/utils_nfcore_edna_pipeline'
 include { PRIMER_IDENTIFICATION        } from '../subworkflows/local/primer_identification_swf.nf'
 include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
-include { READSMERGE                   } from '../subworkflows/local/readsmerge/main'
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
@@ -124,16 +124,21 @@ workflow EDNA {
    
     
     // Add this to inspect the output:
-    //CONCAT_PRIMER_CUTADAPT.out.cutadapt_out.view { "CONCAT_PRIMER_CUTADAPT.out.cutadapt_out: ${it}" }
+    //READS_QC.out.reads.view { "READS_QC.out.reads: ${it}" }
     
     reads_merge_input = reads_merged_input_prep(READS_QC.out.reads, CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
     
-    //reads_merge_input.view { "reads_merge_input: ${it}" }
+    READS_QC_MERGE_BEFOREHMM(
+        false, 
+        reads_merge_input,
+        true // merge
+    )
+    ch_versions = ch_versions.mix(READS_QC_MERGE_BEFOREHMM.out.versions) 
 
-    READSMERGE(reads_merge_input)
-    ch_versions = ch_versions.mix(READSMERGE.out.versions)
-    
-    //READSMERGE.out.reads_fasta.view { "READSMERGE.out.reads_fasta: ${it}" }
+   // READS_QC_MERGE_BEFOREHMM.out.reads_se_and_merged.view { "reads_se_and_merged: ${it}" }
+
+    //READS_QC_MERGE_BEFOREHMM.out.fastp_summary_json.view { "fastp_summary_json: ${it}" }
+
 
     // Pfam profiling
     pfam_db = params.pfam_coi_db ?
@@ -145,9 +150,9 @@ workflow EDNA {
 
     
     PROFILE_HMMSEARCH_PFAM(
-        READSMERGE.out.reads_fasta,
+        READS_QC_MERGE_BEFOREHMM.out.reads_fasta,
         pfam_db,
-        READSMERGE.out.fastp_summary_json
+        READS_QC_MERGE_BEFOREHMM.out.fastp_summary_json
     )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
     

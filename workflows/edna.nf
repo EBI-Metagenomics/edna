@@ -23,6 +23,7 @@ include { methodsDescriptionText       } from '../subworkflows/local/utils_nfcor
 include { PRIMER_IDENTIFICATION        } from '../subworkflows/local/primer_identification_swf.nf'
 include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
+include { DADA2_SWF                    } from '../subworkflows/local/dada2_swf.nf'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
 // Import samplesheetToList from nf-schema //
@@ -156,6 +157,15 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
     
+    // Run DADA2 ASV generation //
+    DADA2_SWF(
+        reads_merge_input,
+        PROFILE_HMMSEARCH_PFAM.out.domtbl
+
+    )
+    ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
+ 
+
     //
     // MODULE: MultiQC
     //

@@ -37,6 +37,7 @@ workflow PROFILE_HMMSEARCH_PFAM {
 
     emit:
     profile  = PARSEHMMSEARCHCOVERAGE.out.tsv
-    versions = ch_versions                     // channel: [ versions.yml ]
+    domtbl   = COMBINEHMMSEARCHTBL.out.concatenated_result
+    versions = ch_versions                                   // channel: [ versions.yml ]
 }
 

@@ -1,0 +1,37 @@
+nextflow_process {
+
+    name "Test Process DADA2"
+    script "modules/local/dada2/main.nf"
+    process "DADA2"
+    tag "modules"
+    tag "dada2"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false ], // meta map
+                    [ 
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_1.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_2.fastq.gz', checkIfExists: true) 
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.dada2_out).match() }
+            )
+        }
+
+    }
+
+}

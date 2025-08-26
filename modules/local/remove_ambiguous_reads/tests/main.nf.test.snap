@@ -1,0 +1,23 @@
+{
+    "noambig_out": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    [
+                        "test_noambig_1.fastq.gz:md5,1fcc28fbb35ff646fbf61d88dad454f6",
+                        "test_noambig_2.fastq.gz:md5,957292d0eee42dbe63f5b11dd9aa7e0f"
+                    ]
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2025-03-24T16:38:56.338472452"
+    }
+}

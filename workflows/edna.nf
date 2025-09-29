@@ -24,6 +24,7 @@ include { PRIMER_IDENTIFICATION        } from '../subworkflows/local/primer_iden
 include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { DADA2_SWF                    } from '../subworkflows/local/dada2_swf.nf'
+include { MAPSEQ_ASV_KRONA             } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
 // Import samplesheetToList from nf-schema //
@@ -48,6 +49,21 @@ workflow EDNA {
     ch_multiqc_files = Channel.empty()
 
      
+     /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        INITIALISE REFERENCE DATABASE INPUT TUPLES
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+
+    // Regular ASV resolution method //
+    dada2_krona_bold_tuple = tuple(
+        file(params.ssu_db_fasta, checkIfExists: true),
+        file(params.ssu_db_tax, checkIfExists: true),
+        file(params.ssu_db_otu, checkIfExists: true),
+        file(params.ssu_db_mscluster, checkIfExists: true),
+        params.dada2_silva_label
+    )
+
     // Initialiase standard primer library for PIMENTO if user-given//
     // If there are no primers provided, it will fallback to use the default PIMENTO standard primer library
     std_primer_library = []
@@ -157,15 +173,29 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
     
+     /*
     // Run DADA2 ASV generation //
     DADA2_SWF(
         reads_merge_input,
         PROFILE_HMMSEARCH_PFAM.out.domtbl
-
     )
     ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
  
+    def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
+                                def key = meta.subMap('id', 'single_end')
+                                return [key, stats_fail]
+                            }
 
+    //DADA2_SWF.out.dada2_out.view { "DADA2_SWF.out.dada2_out: ${it}" }
+   
+  
+    // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
+    MAPSEQ_ASV_KRONA(
+        DADA2_SWF.out.dada2_out,
+        dada2_krona_bold_tuple
+    )
+    ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
+    */
     //
     // MODULE: MultiQC
     //
@@ -222,6 +252,68 @@ workflow EDNA {
         []
     )
 
+    /*****************************/
+    /* End of execution reports */
+    /****************************/
+ 
+    // Extract runs that failed SeqFu check //
+    READS_QC.out.seqfu_check
+        .splitCsv(sep: "\t", elem: 1)
+        .filter { meta, seqfu_res ->
+            seqfu_res[0] != "OK"
+        }
+        .map { meta, __ -> "${meta.id},seqfu_fail" }
+        .set { seqfu_fails }
+
+    // Extract runs that failed Suffix Header check //
+    READS_QC.out.suffix_header_check
+        .filter { meta, sfxhd_res ->
+            sfxhd_res.countLines() != 0
+        }
+        .map { meta, __ -> "${meta.id},sfxhd_fail"  }
+        .set { sfxhd_fails }
+
+    // Extract runs that failed Library Strategy check //
+    READS_QC_MERGE.out.amplicon_check
+        .filter { meta, strategy ->
+            strategy != "AMPLICON"
+        }
+        .map { meta, __ -> "${meta.id},libstrat_fail" }
+        .set { libstrat_fails }
+
+    // Extract runs that had zero reads after fastp //
+    extended_reads_qc.qc_empty.map { meta, __ -> "${meta.id},no_reads"  }
+        .set { no_reads_fails }
+
+    // Save all failed runs to file //
+    all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, no_reads_fails )
+    all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+
+    /*
+    // Extract passed runs, describe whether those passed runs also ASV results //
+    DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
+    .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
+    .groupTuple()
+    .map { meta, results ->
+        if ( results.size() == 3 ) {
+            return "${meta.id},all_results"
+        }
+        else {
+            if (results[1] == "true"){
+                return "${meta.id},dada2_stats_fail"
+            } else {
+                return "${meta.id},no_asvs"
+            }
+        }
+        error "Unexpected. meta: ${meta}, results: ${results}"
+    }
+    .set { final_passed_runs }
+
+    // Save all passed runs to file //
+    final_passed_runs.collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+    .set { passed_runs_path }
+
+   */
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]

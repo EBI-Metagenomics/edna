@@ -17,15 +17,29 @@ workflow PROFILE_HMMSEARCH_PFAM {
     
     SEQKIT_TRANSLATE(FASTAEMBEDLENGTH.out.fasta)
     
+    /*
+    * Adaptive FASTA chunking for HMMER parallelization
+    * 
+    * Uses ideal chunk size (better performance) for small files,
+    * but switches to larger chunks for big files to respect the
+    * maximum chunk limit (prevents job scheduler overload).
+    * 
+    * Sequence-based splitting ensures predictable processing times
+    * and prevents truncated sequences.
+    */
+
     ch_chunked_pfam_in = SEQKIT_TRANSLATE.out.fastx
         .flatMap{ meta, fasta ->
             def totalSeqs = fasta.countFasta()
             def maxChunks = params.hmmsearch_max_chunks ?: 200
             def idealSeqsPerChunk = params.hmmsearch_seqs_per_chunk ?: 1000
-            
+
+            // Adaptive strategy: ideal chunks for small files, larger chunks for big files
+            // Small file: use ideal size idealSeqsPerChunk
+            // Large file: respect max limit
             def seqsPerChunk = (totalSeqs <= maxChunks * idealSeqsPerChunk) ? 
-                idealSeqsPerChunk : 
-                Math.ceil(totalSeqs / maxChunks) as Integer
+                idealSeqsPerChunk :                           
+                Math.ceil(totalSeqs / maxChunks) as Integer   
                 
             def chunks = fasta.splitFasta(by: seqsPerChunk, file: true)
             

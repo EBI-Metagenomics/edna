@@ -19,9 +19,18 @@ workflow PROFILE_HMMSEARCH_PFAM {
     
     ch_chunked_pfam_in = SEQKIT_TRANSLATE.out.fastx
         .flatMap{ meta, fasta ->
-             def chunks = fasta.splitFasta(file: true, size: params.hmmsearch_chunksize)
-             chunks.collect{ chunk -> tuple(groupKey(meta, chunks.size()), chunk) }
-         }
+            def totalSeqs = fasta.countFasta()
+            def maxChunks = params.hmmsearch_max_chunks ?: 200
+            def idealSeqsPerChunk = params.hmmsearch_seqs_per_chunk ?: 1000
+            
+            def seqsPerChunk = (totalSeqs <= maxChunks * idealSeqsPerChunk) ? 
+                idealSeqsPerChunk : 
+                Math.ceil(totalSeqs / maxChunks) as Integer
+                
+            def chunks = fasta.splitFasta(by: seqsPerChunk, file: true)
+            
+            chunks.collect{ chunk -> tuple(groupKey(meta, chunks.size()), chunk) }
+        }
         .combine(pfam_db)
         .map{ meta, reads, db -> [meta, db, reads, true, true, true] }
 

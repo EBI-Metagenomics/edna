@@ -170,11 +170,19 @@
                     "description": "Version of PIMENTO to be used",
                     "default": "1.0.2--pyhdfd78af_0"
                 },
-                "hmmsearch_chunksize": {
-                    "type": "string",
-                    "description": "Chunk size for HMMER hmmsearch process (e.g. 400.KB, 1.MB)",
-                    "default": "400.KB",
-                    "pattern": "^[0-9]+\\.(KB|MB|GB)$"
+                "hmmsearch_max_chunks": {
+                    "type": "integer",
+                    "description": "Maximum chunks to prevent job explosion",
+                    "default": 200,
+                    "minimum": 1,
+                    "help_text": "Sets the maximum number of chunks that can be created during HMM search processing to prevent excessive job creation and resource consumption."
+                },
+                "hmmsearch_seqs_per_chunk": {
+                    "type": "integer",
+                    "description": "Target sequences per chunk for optimal performance",
+                    "default": 10000,
+                    "minimum": 1,
+                    "help_text": "Defines the target number of sequences to include in each chunk for HMM search processing to optimize performance and resource utilization."
                 },
                 "publish_dir_mode": {
                     "type": "string",

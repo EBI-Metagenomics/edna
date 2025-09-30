@@ -2,7 +2,6 @@ process PARSEHMMSEARCHCOVERAGE {
     tag "${meta.id}"
     label 'process_single'
 
-    //conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
         ? 'https://depot.galaxyproject.org/singularity/python:3.13'
         : 'quay.io/biocontainers/python:3.13'}"

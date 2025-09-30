@@ -35,8 +35,6 @@ workflow PROFILE_HMMSEARCH_PFAM {
             def idealSeqsPerChunk = params.hmmsearch_seqs_per_chunk ?: 1000
 
             // Adaptive strategy: ideal chunks for small files, larger chunks for big files
-            // Small file: use ideal size idealSeqsPerChunk
-            // Large file: respect max limit
             def seqsPerChunk = (totalSeqs <= maxChunks * idealSeqsPerChunk) ? 
                 idealSeqsPerChunk :                           
                 Math.ceil(totalSeqs / maxChunks) as Integer   

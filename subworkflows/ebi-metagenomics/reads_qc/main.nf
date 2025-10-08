@@ -15,18 +15,25 @@ workflow  READS_QC {
     main:
     ch_versions = Channel.empty()
 
+
+    // First, separate single-end reads from the original channel
+    ch_reads_se = ch_reads.filter { meta, files -> meta.single_end }
+    ch_reads_pe = ch_reads.filter { meta, files -> !meta.single_end }
+
     SEQFU_CHECK(ch_reads)
     ch_versions = ch_versions.mix(SEQFU_CHECK.out.versions.first())
 
-    passed_seqfu_reads = SEQFU_CHECK.out.tsv
+    passed_seqfu_reads_pe = SEQFU_CHECK.out.tsv
         .splitCsv(sep: "\t", elem: 1)
         .filter { meta, seqfu_res ->
             seqfu_res[0] == "OK"
-        }
+        } 
         .map { map, seqfu_res -> map }
-        .join(ch_reads)
+        .join(ch_reads_pe)
 
-    FASTQSUFFIXHEADERCHECK(passed_seqfu_reads)
+    //passed_seqfu_reads_pe.view { "passed_seqfu_reads_pe: ${it}" }
+
+    FASTQSUFFIXHEADERCHECK(passed_seqfu_reads_pe)
     ch_versions = ch_versions.mix(FASTQSUFFIXHEADERCHECK.out.versions.first())
 
     passed_suffixheader_reads = FASTQSUFFIXHEADERCHECK.out.json
@@ -34,7 +41,8 @@ workflow  READS_QC {
             sufhd_res.countLines() == 0
         }
         .map { meta, _ -> [ meta ] }
-        .join(ch_reads)
+        .join(ch_reads_pe)
+        .mix(ch_reads_se)
 
     if ( filter_amplicon ) {
         assess_mcp_proportions_input = passed_suffixheader_reads

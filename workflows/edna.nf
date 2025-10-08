@@ -96,26 +96,13 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(READS_QC.out.versions)
 
-    // Removes reads that passed sanity checks but are empty after QC with fastp //
-    READS_QC_MERGE.out.reads_se_and_merged.branch{ _meta, reads ->
-                                qc_pass: reads.countFastq() > 0
-                                qc_empty: reads.countFastq() == 0
-                            }
-                            .set { extended_reads_qc }
-    //extended_reads_qc.qc_pass.view { "qc_pass: ${it}" }
-    
-    //extended_reads_qc.qc_empty.view { "qc_empty: ${it}" }
-
-    READS_QC_MERGE.out.reads_se_and_merged
-    .map { meta, reads ->
-        def count = reads.countFastq()
-        [ meta, count ]
-    }
-    
-    //READS_QC_MERGE.out.fastp_summary_json.view { "fastp_summary_json: ${it}" }
-
-    //READS_QC_MERGE.out.reads_fasta.view { "reads_fasta: ${it}" }
-    //READS_QC_MERGE.out.reads_se_and_merged.view { "reads_se_and_merged: ${it}" }
+    // Filter and branch reads based on minimum read count with logging
+    READS_QC_MERGE.out.reads_se_and_merged.branch{ meta, reads ->
+                                    def count = reads.countFastq()
+                                    qc_pass: count >= params.min_read_count
+                                    qc_fail: count < params.min_read_count
+                                }
+                                .set { extended_reads_qc }
 
     FASTQC_CLEAN(
         READS_QC_MERGE.out.reads
@@ -137,12 +124,7 @@ workflow EDNA {
         READS_QC.out.reads
     )
     ch_versions = ch_versions.mix(CONCAT_PRIMER_CUTADAPT.out.versions)
-    
-   
-    
-    // Add this to inspect the output:
-    //READS_QC.out.reads.view { "READS_QC.out.reads: ${it}" }
-    
+     
     reads_merge_input = reads_merged_input_prep(READS_QC.out.reads, CONCAT_PRIMER_CUTADAPT.out.cutadapt_out)
     
     READS_QC_MERGE_BEFOREHMM(
@@ -152,19 +134,12 @@ workflow EDNA {
     )
     ch_versions = ch_versions.mix(READS_QC_MERGE_BEFOREHMM.out.versions) 
 
-   // READS_QC_MERGE_BEFOREHMM.out.reads_se_and_merged.view { "reads_se_and_merged: ${it}" }
-
-    //READS_QC_MERGE_BEFOREHMM.out.fastp_summary_json.view { "fastp_summary_json: ${it}" }
-
-
     // Pfam profiling
     pfam_db = params.pfam_coi_db ?
     Channel
         .fromPath(params.pfam_coi_db, checkIfExists: true)
         .first() :
     Channel.empty()
-    //pfam_db.view { "pfam_db: ${it}" }
-
     
     PROFILE_HMMSEARCH_PFAM(
         READS_QC_MERGE_BEFOREHMM.out.reads_fasta,
@@ -195,7 +170,7 @@ workflow EDNA {
         }
         .map { meta, tsv_file -> meta }
         .join(PROFILE_HMMSEARCH_PFAM.out.domtbl) 
-
+        
     // Run DADA2 ASV generation with filtered samples //
     DADA2_SWF(
         reads_merge_input,
@@ -304,11 +279,11 @@ workflow EDNA {
         .set { libstrat_fails }
 
     // Extract runs that had zero reads after fastp //
-    extended_reads_qc.qc_empty.map { meta, __ -> "${meta.id},no_reads"  }
-        .set { no_reads_fails }
+    extended_reads_qc.qc_fail.map { meta, __ -> "${meta.id},min_reads"  }
+        .set { min_reads_fails }
 
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, no_reads_fails )
+    all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, min_reads_fails )
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     /*

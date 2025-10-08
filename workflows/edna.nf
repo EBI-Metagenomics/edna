@@ -57,11 +57,11 @@ workflow EDNA {
 
     // Regular ASV resolution method //
     dada2_krona_bold_tuple = tuple(
-        file(params.ssu_db_fasta, checkIfExists: true),
-        file(params.ssu_db_tax, checkIfExists: true),
-        file(params.ssu_db_otu, checkIfExists: true),
-        file(params.ssu_db_mscluster, checkIfExists: true),
-        params.dada2_silva_label
+        file(params.bold_db_fasta, checkIfExists: true),
+        file(params.bold_db_tax, checkIfExists: true),
+        file(params.bold_db_otu, checkIfExists: true),
+        file(params.bold_db_mscluster, checkIfExists: true),
+        params.dada2_bold_label
     )
 
     // Initialiase standard primer library for PIMENTO if user-given//
@@ -172,12 +172,34 @@ workflow EDNA {
         READS_QC_MERGE_BEFOREHMM.out.fastp_summary_json
     )
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
-    
-     /*
-    // Run DADA2 ASV generation //
+        
+    // Filter samples based on reads_percentage threshold and get filtered domtbl
+    ch_filtered_domtbl = PROFILE_HMMSEARCH_PFAM.out.profile
+        .filter { meta, tsv_file ->
+            def threshold = params.reads_percentage_threshold ?: 0.70
+            
+            try {
+                def lines = tsv_file.readLines()
+                def dataLine = lines[1] // Skip header, get the single data row
+                def columns = dataLine.split('\t')
+                def readsPercentageStr = columns[4]
+                
+                def readsPercentage = readsPercentageStr as Double
+                def passes = readsPercentage >= threshold
+                
+                return passes
+                
+            } catch (Exception e) {
+                return false
+            }
+        }
+        .map { meta, tsv_file -> meta }
+        .join(PROFILE_HMMSEARCH_PFAM.out.domtbl) 
+
+    // Run DADA2 ASV generation with filtered samples //
     DADA2_SWF(
         reads_merge_input,
-        PROFILE_HMMSEARCH_PFAM.out.domtbl
+        ch_filtered_domtbl
     )
     ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
  
@@ -188,7 +210,7 @@ workflow EDNA {
 
     //DADA2_SWF.out.dada2_out.view { "DADA2_SWF.out.dada2_out: ${it}" }
    
-  
+    /*
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
     MAPSEQ_ASV_KRONA(
         DADA2_SWF.out.dada2_out,

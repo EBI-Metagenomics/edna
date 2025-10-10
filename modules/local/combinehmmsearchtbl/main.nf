@@ -28,4 +28,3 @@ process COMBINEHMMSEARCHTBL {
     touch ${output_name}
     """
 }
-

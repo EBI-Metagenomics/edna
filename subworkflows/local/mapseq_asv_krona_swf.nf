@@ -32,23 +32,25 @@ workflow MAPSEQ_ASV_KRONA {
         )
         ch_versions = ch_versions.mix(MAPSEQ2ASVTABLE.out.versions.first())
 
-        // Add in the concatenated var region channel to the rest of the input
+        // Prepare input for MAKE_ASV_COUNT_TABLES
         final_asv_count_table_input = dada2_output
-            .join(MAPSEQ2ASVTABLE.out.asvtaxtable, by: 0)
-            .map { meta, maps, asv_seqs, filt_reads, asvtaxtable ->
-                tuple( meta + [ 'var_region': 'all' ], maps, asvtaxtable, filt_reads, asv_seqs )
-            }
-
-        
-
-     /* 
+        .join(MAPSEQ2ASVTABLE.out.asvtaxtable, by: 0)
+        .map { meta, maps, asv_seqs, filt_reads, asvtaxtable ->
+            tuple( 
+                meta + [ 'var_region': 'all' ], 
+                maps, 
+                asvtaxtable, 
+                filt_reads
+            )
+        }
+      
         MAKE_ASV_COUNT_TABLES(
             final_asv_count_table_input,
             krona_tuple[4]
         )
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
-
+/*
         KRONA_KTIMPORTTEXT(
             MAKE_ASV_COUNT_TABLES.out.asv_count_tables_out,
         )

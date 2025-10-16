@@ -50,12 +50,11 @@ workflow MAPSEQ_ASV_KRONA {
         )
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
-/*
         KRONA_KTIMPORTTEXT(
             MAKE_ASV_COUNT_TABLES.out.asv_count_tables_out,
         )
         ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT.out.versions.first())
-   */
+
     emit:
       //  asv_count_tables_out = MAKE_ASV_COUNT_TABLES.out.asv_count_tables_out
        // asvs_left = MAKE_ASV_COUNT_TABLES.out.asv_read_counts_out

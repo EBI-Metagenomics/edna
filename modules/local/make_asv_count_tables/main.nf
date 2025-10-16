@@ -7,7 +7,7 @@ process MAKE_ASV_COUNT_TABLES {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
 
     input:
-    tuple val(meta), path(maps), path(asvtaxtable), path(reads), path(extracted_var_path)
+    tuple val(meta), path(maps), path(asvtaxtable), path(reads)
     val db_label
 
     output:
@@ -20,11 +20,11 @@ process MAKE_ASV_COUNT_TABLES {
     """
     if [[ ${meta.single_end} = true ]]; then
         zcat $reads | awk 'NR % 4 == 1' > headers.txt
-        make_asv_count_table -t $asvtaxtable -f $maps -a $extracted_var_path -hd ./headers.txt  -s ${meta.id}_${meta.var_region}_${db_label}
+        make_asv_count_table.py -t $asvtaxtable -f $maps -hd ./headers.txt  -s ${meta.id}_${meta.var_region}_${db_label}
         tail -n +2 *_asv_read_counts.tsv | cut -f1 > ${meta.id}_${meta.var_region}_${db_label}_asvs_left.txt
     else
         zcat ${reads[0]} | awk 'NR % 4 == 1' > headers.txt
-        make_asv_count_table -t $asvtaxtable -f ${maps[0]} -r ${maps[1]} -a $extracted_var_path -hd ./headers.txt  -s ${meta.id}_${meta.var_region}_${db_label}
+        make_asv_count_table.py -t $asvtaxtable -f ${maps[0]} -r ${maps[1]} -hd ./headers.txt  -s ${meta.id}_${meta.var_region}_${db_label}
         tail -n +2 *_asv_read_counts.tsv | cut -f1 > ${meta.id}_${meta.var_region}_${db_label}_asvs_left.txt
     fi
 

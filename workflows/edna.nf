@@ -185,14 +185,14 @@ workflow EDNA {
 
     //DADA2_SWF.out.dada2_out.view { "DADA2_SWF.out.dada2_out: ${it}" }
    
-    /*
+
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
     MAPSEQ_ASV_KRONA(
         DADA2_SWF.out.dada2_out,
         dada2_krona_bold_tuple
     )
     ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
-    */
+
     //
     // MODULE: MultiQC
     //

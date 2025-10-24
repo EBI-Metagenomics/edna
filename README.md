@@ -1,104 +1,179 @@
-<h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/nf-core-edna_logo_dark.png">
-    <img alt="nf-core/edna" src="docs/images/nf-core-edna_logo_light.png">
-  </picture>
-</h1>
 
-[![GitHub Actions CI Status](https://github.com/nf-core/edna/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/edna/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/edna/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/edna/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/edna/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A524.04.2-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
 [![nf-core template version](https://img.shields.io/badge/nf--core_template-3.3.1-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/3.3.1)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/edna)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23edna-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/edna)[![Follow on Bluesky](https://img.shields.io/badge/bluesky-%40nf__core-1185fe?labelColor=000000&logo=bluesky)](https://bsky.app/profile/nf-co.re)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
+# EBI-Metagenomics eDNA Analysis Pipeline
 
-## Introduction
+This repository contains the v1.0 EBI-Metagenomics eDNA analysis pipeline. This pipeline is designed for the analysis of environmental DNA (eDNA) sequencing data, implementing a comprehensive workflow for quality control, primer identification, taxonomic profiling, and Amplicon Sequence Variant (ASV) calling using modern bioinformatics tools.
 
-**nf-core/edna** is a bioinformatics pipeline that ...
+## Pipeline Description
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/edna_schema.png">
+    <img alt="nf-core/edna" src="docs/images/edna_schema.png" style="width: 80%;">
+  </picture>
+</h1>
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
-## Usage
+### Features
+
+The eDNA analysis pipeline v1.0 implements the following key features:
+
+**Quality Control and Preprocessing:**
+- Raw reads quality assessment using FastQC
+- Reads quality control and filtering using fastp
+- Automatic read merging for single-end analysis
+- Minimum read count filtering (configurable threshold)
+
+**Primer Analysis:**
+- Automatic primer identification using PIMENTO
+- Primer trimming using Cutadapt
+- Primer validation and reporting
+
+**Taxonomic Profiling:**
+- Pfam-based COI (Cytochrome c Oxidase subunit I) profiling using HMMER
+- Reads percentage threshold filtering for quality control
+- Profile-based taxonomic classification
+
+**ASV Analysis:**
+- Amplicon Sequence Variant (ASV) calling using DADA2
+- ASV taxonomic classification using MAPseq
+- Krona chart visualization for taxonomic results
+
+**Reporting and Quality Control:**
+- Comprehensive MultiQC reports
+- Failed and passed runs tracking
+- Software version reporting
+
+## Tools
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| FastQC | Latest | Raw and clean reads quality assessment |
+| fastp | Latest | Read quality control and filtering |
+| PIMENTO | 1.0.2 | Primer identification and inference |
+| Cutadapt | Latest | Primer trimming |
+| HMMER | Latest | Profile HMM searching for COI sequences |
+| DADA2 | Latest | ASV calling and denoising |
+| MAPseq | Latest | Taxonomic classification of ASVs |
+| Krona | Latest | Interactive taxonomic visualization |
+| MultiQC | Latest | Aggregated quality control reporting |
+| mgnify-pipelines-toolkit | 1.0.4 | Custom processing scripts |
+
+## Reference Databases
+
+This pipeline uses the following reference databases:
+
+| Database | Purpose | Default Location |
+|----------|---------|------------------|
+| BOLD | COI taxonomic classification and popular COI primers | Configurable via parameters |
 
 > [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+> Database paths can be configured in the pipeline parameters. Contact the development team for access to preprocessed databases.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+## How to Run
 
-First, prepare a samplesheet with your input data that looks as follows:
+### Requirements
 
-`samplesheet.csv`:
+The pipeline requires:
+- Nextflow (≥24.04.2)
+- Docker, Singularity, or Conda for software management
+- Access to reference databases
+
+### Input Format
+
+The input data should be eDNA sequencing reads (paired-end or single-end) in FASTQ format, specified using a CSV samplesheet:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fastq_1,fastq_2,single_end
+sample1,/path/to/sample1_R1.fastq.gz,/path/to/sample1_R2.fastq.gz,false
+sample2,/path/to/sample2.fastq.gz,,true
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
-
-Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
+### Basic execution
 
 ```bash
-nextflow run nf-core/edna \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+nextflow run EBI-Metagenomics/edna \
+    -r main \
+    -profile codon_slurm \
+    --input samplesheet.csv \
+    --outdir results
 ```
 
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+### Key Parameters
 
-For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/edna/usage) and the [parameter documentation](https://nf-co.re/edna/parameters).
+| **Parameter** | **Default** | **Description** |
+|----------------|-------------|-----------------|
+| `--min_read_count` | `5000` | Minimum number of reads required per sample |
+| `--reads_percentage_threshold` | `0.80` | Minimum percentage of reads matching COI profile |
+| `--std_primer_library` | `[]` | Custom primer library for PIMENTO |
+| `--pfam_coi_db` | `Default path` | Path to Pfam COI HMM database |
 
-## Pipeline output
 
-To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/edna/results) tab on the nf-core website pipeline page.
-For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/edna/output).
+## Outputs
 
-## Credits
+### Output directory structure
 
-nf-core/edna was originally written by Christina Vasilopoulou.
+Example output structure for a sample (sample1):
+```bash
+results/
+├── sample1/
+│   ├── fastqc/
+│   │   ├── sample1_raw_fastqc.html
+│   │   └── sample1_clean_fastqc.html
+│   ├── primer_identification/
+│   │   ├── sample1_primers.fasta
+│   │   └── sample1_primer_validation.tsv
+│   ├── quality_control/
+│   │   ├── sample1.fastp.json
+│   │   └── sample1_merged.fastq.gz
+│   ├── taxonomic_profiling/
+│   │   ├── sample1_pfam_profile.tsv
+│   │   └── sample1_coi_hits.domtbl
+│   ├── asv_analysis/
+│   │   ├── sample1_asv_seqs.fasta
+│   │   ├── sample1_asv_counts.tsv
+│   │   └── sample1_dada2_stats.tsv
+│   └── taxonomic_classification/
+│       ├── sample1_mapseq_taxonomy.tsv
+│       └── sample1_krona.html
+├── pipeline_info/
+│   ├── execution_report_YYYY-MM-DD_HH-mm-ss.html
+│   ├── execution_timeline_YYYY-MM-DD_HH-mm-ss.html
+│   ├── execution_trace_YYYY-MM-DD_HH-mm-ss.txt
+│   ├── pipeline_dag_YYYY-MM-DD_HH-mm-ss.html
+│   └── edna_software_mqc_versions.yml
+├── multiqc_report.html
+├── qc_passed_runs.csv
+└── qc_failed_runs.csv
+```
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+### Key Output Files
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+* **MultiQC Report**: Comprehensive quality control summary across all samples
+* **ASV Sequences**: FASTA files containing called Amplicon Sequence Variants
+* **Taxonomic Classifications**: TSV files with taxonomic assignments for ASVs
+* **Krona Charts**: Interactive HTML visualizations of taxonomic composition
+* **QC Summary Files**: Lists of samples that passed or failed quality control steps
 
-## Contributions and Support
+### Configuration Profiles
 
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+The pipeline includes several pre-configured profiles:
 
-For further information or help, don't hesitate to get in touch on the [Slack `#edna` channel](https://nfcore.slack.com/channels/edna) (you can join with [this invite](https://nf-co.re/join/slack)).
+* docker: Use Docker containers
+* singularity: Use Singularity containers
+* conda: Use Conda environments
+* codon_slurm: Optimized for SLURM clusters
+* test: Small test dataset for validation
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/edna for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
-An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-You can cite the `nf-core` publication as follows:
+This pipeline uses code developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
 >

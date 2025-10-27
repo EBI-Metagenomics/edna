@@ -54,16 +54,15 @@ The eDNA analysis pipeline v1.0 implements the following key features:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| FastQC | Latest | Raw and clean reads quality assessment |
-| fastp | Latest | Read quality control and filtering |
-| PIMENTO | 1.0.2 | Primer identification and inference |
-| Cutadapt | Latest | Primer trimming |
-| HMMER | Latest | Profile HMM searching for COI sequences |
-| DADA2 | Latest | ASV calling and denoising |
-| MAPseq | Latest | Taxonomic classification of ASVs |
-| Krona | Latest | Interactive taxonomic visualization |
-| MultiQC | Latest | Aggregated quality control reporting |
-| mgnify-pipelines-toolkit | 1.0.4 | Custom processing scripts |
+| [fastp](https://github.com/OpenGene/fastp)  | 0.24.0 | Read quality control and filtering |
+| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)  | 1.0.2 | Primer identification and inference |
+| [cutadapt](https://cutadapt.readthedocs.io/en/stable/)  | 4.6 | Primer trimming |
+| [HMMER](http://hmmer.org/) | 3.4 | Profile HMM searching for COI sequences |
+| [DADA2](https://benjjneb.github.io/dada2/index.html)   | 1.30.0 | ASV calling and denoising |
+| [MAPseq](https://github.com/meringlab/MAPseq)  | 2.1.1 | Taxonomic classification of ASVs |
+| [Krona](https://github.com/marbl/Krona)  | 2.8.1 | Interactive taxonomic visualization |
+| [MultiQC](https://github.com/MultiQC/MultiQC) | 1.27 | Aggregated quality control reporting |
+| [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit) | 1.0.4 | Toolkit containing various in-house processing scripts |
 
 ## Reference Databases
 

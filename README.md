@@ -122,32 +122,63 @@ Example output structure for a sample (sample1):
 ```bash
 results/
 ├── sample1/
+│   ├── dada2/
+│   │   ├── sample1_filt.fastq.gz
+│   │   └── sample1_map.txt
+│   ├── extract/
+│   │   ├── sample1_extracted_reads_1.fastq.gz
+│   │   └── sample1_extracted_reads_2.fastq.gz
 │   ├── fastqc/
 │   │   ├── sample1_raw_fastqc.html
 │   │   └── sample1_clean_fastqc.html
-│   ├── primer_identification/
-│   │   ├── sample1_primers.fasta
-│   │   └── sample1_primer_validation.tsv
-│   ├── quality_control/
+│   ├── fastaembedlength/
+│   │   └── sample1.seqtk-seq.fastq.renamed.gz
+│   ├── fastp/
+│   │   ├── sample1.fail.fastq.gz
+│   │   ├── sample1.fastp.fastq.gz
+│   │   ├── sample1.fastp.html
 │   │   ├── sample1.fastp.json
-│   │   └── sample1_merged.fastq.gz
-│   ├── taxonomic_profiling/
-│   │   ├── sample1_pfam_profile.tsv
-│   │   └── sample1_coi_hits.domtbl
-│   ├── asv_analysis/
-│   │   ├── sample1_asv_seqs.fasta
-│   │   ├── sample1_asv_counts.tsv
-│   │   └── sample1_dada2_stats.tsv
-│   └── taxonomic_classification/
-│       ├── sample1_mapseq_taxonomy.tsv
-│       └── sample1_krona.html
+│   │   ├── sample1.fastp.log
+│   │   └── sample1.merged.fastq.gz 
+│   ├── fastqc/
+│   │   ├── sample1_fastqc.html
+│   │   └── sample1_fastqc.zip
+│   ├── hmmer/
+│   │   ├── sample1.domtbl.gz
+│   │   ├── sample1.sto.gz
+│   │   ├── sample1.tbl.gz
+│   │   └── sample1.txt.gz
+│   ├── krona/
+│   │   └── sample1.html
+│   ├── make/
+│   │   ├── sample1_DADA2-SILVA_asv_read_counts.tsv
+│   │   └── sample1_DADA2-SILVA_asvs_left.txt
+│   ├── mapseq/
+│   │   └── sample1.mseq
+│   ├── mapseq2asvtable/
+│   │   └── sample1_DADA2-SILVA_asv_taxa.tsv
+│   ├── multiqc/
+│   │   └── multiqc_report.html
+│   ├── remove/
+│   │   └── sample1_noambig.fastq.gz
+│   ├── rev/
+│   │   └── sample1_rev_comp_se_primers.fasta
+│   ├── seqkit/ 
+│   │   └── sample1.fastq.gz ERR8441354.seqtk-seq.fastq.gz
+│   ├── seqkt/ 
+│   │   └── sample1.seqtk-seq.fastq.gz
+│   ├── split/
+│   │   ├── fwd_primer.fasta
+│   │   └── rev_primer.fasta
+│   └── std/
+│       ├── sample1_null_std_primer_out.txt
+│       └── sample1_null_std_primers.fasta
 ├── pipeline_info/
 │   ├── execution_report_YYYY-MM-DD_HH-mm-ss.html
 │   ├── execution_timeline_YYYY-MM-DD_HH-mm-ss.html
 │   ├── execution_trace_YYYY-MM-DD_HH-mm-ss.txt
 │   ├── pipeline_dag_YYYY-MM-DD_HH-mm-ss.html
 │   └── edna_software_mqc_versions.yml
-├── multiqc_report.html
 ├── qc_passed_runs.csv
 └── qc_failed_runs.csv
 ```

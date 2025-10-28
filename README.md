@@ -151,12 +151,12 @@ results/
 │   ├── krona/
 │   │   └── sample1.html
 │   ├── make/
-│   │   ├── sample1_DADA2-SILVA_asv_read_counts.tsv
-│   │   └── sample1_DADA2-SILVA_asvs_left.txt
+│   │   ├── sample1_DADA2-BOLD_asv_read_counts.tsv
+│   │   └── sample1_DADA2-BOLD_asvs_left.txt
 │   ├── mapseq/
 │   │   └── sample1.mseq
 │   ├── mapseq2asvtable/
-│   │   └── sample1_DADA2-SILVA_asv_taxa.tsv
+│   │   └── sample1_DADA2-BOLD_asv_taxa.tsv
 │   ├── multiqc/
 │   │   └── multiqc_report.html
 │   ├── remove/

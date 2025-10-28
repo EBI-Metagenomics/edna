@@ -152,6 +152,54 @@
                 }
             }
         },
+        "bold_database_options": {
+            "title": "BOLD Database Options",
+            "type": "object",
+            "fa_icon": "fas fa-database",
+            "description": "Configuration options for BOLD (Barcode of Life Data System) database files and parameters.",
+            "properties": {
+                "bold_db_fasta": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to BOLD database FASTA file",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "help_text": "Path to the BOLD COI5P reference database FASTA file used for taxonomic classification."
+                },
+                "bold_db_tax": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to BOLD database taxonomy file",
+                    "pattern": "^\\S+\\.tax$",
+                    "help_text": "Path to the BOLD taxonomy file containing taxonomic information for the reference sequences."
+                },
+                "bold_db_otu": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to BOLD database OTU file",
+                    "pattern": "^\\S+\\.otu$",
+                    "help_text": "Path to the BOLD OTU (Operational Taxonomic Unit) file for clustering analysis."
+                },
+                "bold_db_mscluster": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to BOLD database mscluster file",
+                    "pattern": "^\\S+\\.mscluster$",
+                    "help_text": "Path to the BOLD mscluster file used for sequence clustering operations."
+                },
+                "bold_label": {
+                    "type": "string",
+                    "description": "Label for BOLD database classification",
+                    "default": "BOLD",
+                    "help_text": "Label used to identify the BOLD database classification method in output files."
+                },
+                "dada2_bold_label": {
+                    "type": "string",
+                    "description": "Label for DADA2-BOLD database classification",
+                    "default": "DADA2-BOLD",
+                    "help_text": "Label used to identify the DADA2-BOLD database classification method in output files."
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -169,6 +217,21 @@
                     "type": "string",
                     "description": "Version of PIMENTO to be used",
                     "default": "1.0.2--pyhdfd78af_0"
+                },
+                "min_read_count": {
+                    "type": "integer",
+                    "description": "Minimum read count threshold for filtering",
+                    "default": 5000,
+                    "minimum": 1,
+                    "help_text": "Minimum number of reads required for a sample to be processed in the analysis."
+                },
+                "reads_percentage_threshold": {
+                    "type": "number",
+                    "description": "Percentage threshold for read filtering",
+                    "default": 0.80,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "help_text": "Percentage threshold used for filtering reads based on quality or other criteria."
                 },
                 "hmmsearch_max_chunks": {
                     "type": "integer",

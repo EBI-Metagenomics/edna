@@ -286,7 +286,7 @@ workflow EDNA {
     all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, min_reads_fails )
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
-    /*
+
     // Extract passed runs, describe whether those passed runs also ASV results //
     DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
     .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
@@ -310,7 +310,7 @@ workflow EDNA {
     final_passed_runs.collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
     .set { passed_runs_path }
 
-   */
+
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]

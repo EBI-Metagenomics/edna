@@ -3,7 +3,6 @@ include { MAPSEQ                } from '../../modules/ebi-metagenomics/mapseq/ma
 include { MAPSEQ2ASVTABLE       } from '../../modules/local/mapseq2asvtable/main.nf'
 include { MAKE_ASV_COUNT_TABLES } from '../../modules/local/make_asv_count_tables/main.nf'
 include { KRONA_KTIMPORTTEXT    } from '../../modules/ebi-metagenomics/krona/ktimporttext/main'
-include { EXTRACT_ASVS_LEFT     } from '../../modules/local/extract_asvs_left/main.nf'
 
 workflow MAPSEQ_ASV_KRONA {
     
@@ -56,9 +55,9 @@ workflow MAPSEQ_ASV_KRONA {
         ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT.out.versions.first())
 
     emit:
-      //  asv_count_tables_out = MAKE_ASV_COUNT_TABLES.out.asv_count_tables_out
-       // asvs_left = MAKE_ASV_COUNT_TABLES.out.asv_read_counts_out
-     //   asvtaxtable = MAPSEQ2ASVTABLE.out.asvtaxtable
-     //   krona_out = KRONA_KTIMPORTTEXT.out.html
-        versions = ch_versions
+      asv_count_tables_out = MAKE_ASV_COUNT_TABLES.out.asv_count_tables_out
+      asvs_left = MAKE_ASV_COUNT_TABLES.out.asv_read_counts_out
+      asvtaxtable = MAPSEQ2ASVTABLE.out.asvtaxtable
+      krona_out = KRONA_KTIMPORTTEXT.out.html
+      versions = ch_versions
 }

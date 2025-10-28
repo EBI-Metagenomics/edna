@@ -21,7 +21,7 @@ import logging
 import pandas as pd
 
 from mgnify_pipelines_toolkit.constants.tax_ranks import (
-    _SILVA_TAX_RANKS,
+    _SILVA_TAX_RANKS as _BOLD_TAX_RANKS, 
     _PR2_TAX_RANKS,
 )
 
@@ -58,7 +58,7 @@ def parse_args():
 
 def order_df(taxa_df):
     if len(taxa_df.columns) == 9:
-        taxa_df = taxa_df.sort_values(_SILVA_TAX_RANKS, ascending=True)
+        taxa_df = taxa_df.sort_values(_BOLD_TAX_RANKS, ascending=True)
     elif len(taxa_df.columns) == 10:
         taxa_df = taxa_df.sort_values(_PR2_TAX_RANKS, ascending=True)
     else:
@@ -68,7 +68,7 @@ def order_df(taxa_df):
     return taxa_df
 
 
-def make_tax_assignment_dict_silva(taxa_df, asv_dict):
+def make_tax_assignment_dict_bold(taxa_df, asv_dict):
     tax_assignment_dict = defaultdict(int)
 
     for i in range(len(taxa_df)):
@@ -293,8 +293,8 @@ def main():
         ref_db = ""
 
         if len(taxa_df.columns) == 9:
-            tax_assignment_dict = make_tax_assignment_dict_silva(taxa_df, asv_dict)
-            ref_db = "silva"
+            tax_assignment_dict = make_tax_assignment_dict_bold(taxa_df, asv_dict)
+            ref_db = "bold"
         elif len(taxa_df.columns) == 10:
             tax_assignment_dict = make_tax_assignment_dict_pr2(taxa_df, asv_dict)
             ref_db = "pr2"

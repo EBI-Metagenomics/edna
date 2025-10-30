@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/edna",
-    "homePage": "https://github.com/nf-core/edna",
+    "name": "EBI-Metagenomics/edna",
+    "homePage": "https://github.com/EBI-Metagenomics/edna",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

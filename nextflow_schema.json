@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/edna/master/nextflow_schema.json",
+    "$id": "https://raw.githubusercontent.com/EBI-Metagenomics/edna/master/nextflow_schema.json",
     "title": "eDNA pipeline parameters",
     "description": "The coolest eDNA pipeline",
     "type": "object",

@@ -15,7 +15,7 @@ This repository contains the v1.0 EBI-Metagenomics eDNA analysis pipeline. This 
 <h1>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/edna_schema.png">
-    <img alt="nf-core/edna" src="docs/images/edna_schema.png" style="width: 80%;">
+    <img alt="EBI-Metagenomics/edna" src="docs/images/edna_schema.png" style="width: 80%;">
   </picture>
 </h1>
 

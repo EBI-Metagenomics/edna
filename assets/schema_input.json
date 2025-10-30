@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/edna/master/assets/schema_input.json",
-    "title": "nf-core/edna pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/EBI-Metagenomics/edna/master/assets/schema_input.json",
+    "title": "EBI-Metagenomics/edna pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

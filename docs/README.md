@@ -1,6 +1,6 @@
-# nf-core/edna: Documentation
+# EBI-Metagenomics/edna: Documentation
 
-The nf-core/edna documentation is split into the following pages:
+The EBI-Metagenomics/edna documentation is split into the following pages:
 
 - [Usage](usage.md)
   - An overview of how the pipeline works, how to run it and a description of all of the different command-line flags.

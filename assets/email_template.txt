@@ -4,15 +4,15 @@
   |\\ | |__  __ /  ` /  \\ |__) |__         }  {
   | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
                                         `._,._,'
-  nf-core/edna ${version}
+  EBI-Metagenomics/edna ${version}
 ----------------------------------------------------
 Run Name: $runName
 
 <% if (success){
-    out << "## nf-core/edna execution completed successfully! ##"
+    out << "## EBI-Metagenomics/edna execution completed successfully! ##"
 } else {
     out << """####################################################
-## nf-core/edna execution completed unsuccessfully! ##
+## EBI-Metagenomics/edna execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -35,5 +35,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-nf-core/edna
-https://github.com/nf-core/edna
+EBI-Metagenomics/edna
+https://github.com/EBI-Metagenomics/edna

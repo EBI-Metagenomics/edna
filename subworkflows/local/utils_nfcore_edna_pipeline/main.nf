@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the nf-core/edna pipeline
+// Subworkflow with functionality specific to the EBI-Metagenomics/edna pipeline
 //
 
 /*

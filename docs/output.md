@@ -1,4 +1,4 @@
-# nf-core/edna: Output
+# EBI-Metagenomics/edna: Output
 
 ## Introduction
 

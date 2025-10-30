@@ -122,63 +122,33 @@ Example output structure for a sample (sample1):
 ```bash
 results/
 ├── sample1/
-│   ├── dada2/
-│   │   ├── sample1_filt.fastq.gz
-│   │   └── sample1_map.txt
-│   ├── extract/
-│   │   ├── sample1_extracted_reads_1.fastq.gz
-│   │   └── sample1_extracted_reads_2.fastq.gz
-│   ├── fastqc/
-│   │   ├── sample1_raw_fastqc.html
-│   │   └── sample1_clean_fastqc.html
+│   ├── asv/
+│   │   ├── sample1_DADA2-BOLD_asv_read_counts.tsv
+│   │   └── sample1_dada2_stats.tsv
+│   ├── hmmsearch-COI/
+│   │   ├── sample1_Pfam-A.domtbl
+│   │   └── sample1_Pfam-A.txt
+│   ├── primer-identification/
+│   │   └── sample1.cutadapt.json
 │   ├── fastaembedlength/
 │   │   └── sample1.seqtk-seq.fastq.renamed.gz
-│   ├── fastp/
-│   │   ├── sample1.fail.fastq.gz
+│   ├── qc/
+│   │   ├── sample1_dada2_errors.txt
+│   │   ├── sample1_seqfu.tsv
 │   │   ├── sample1.fastp.fastq.gz
-│   │   ├── sample1.fastp.html
-│   │   ├── sample1.fastp.json
-│   │   ├── sample1.fastp.log
-│   │   └── sample1.merged.fastq.gz 
-│   ├── fastqc/
-│   │   ├── sample1_fastqc.html
-│   │   └── sample1_fastqc.zip
-│   ├── hmmer/
-│   │   ├── sample1.domtbl.gz
-│   │   ├── sample1.sto.gz
-│   │   ├── sample1.tbl.gz
-│   │   └── sample1.txt.gz
-│   ├── krona/
-│   │   └── sample1.html
-│   ├── make/
-│   │   ├── sample1_DADA2-BOLD_asv_read_counts.tsv
-│   │   └── sample1_DADA2-BOLD_asvs_left.txt
-│   ├── mapseq/
-│   │   └── sample1.mseq
-│   ├── mapseq2asvtable/
-│   │   └── sample1_DADA2-BOLD_asv_taxa.tsv
-│   ├── multiqc/
-│   │   └── multiqc_report.html
-│   ├── remove/
-│   │   └── sample1_noambig.fastq.gz
-│   ├── rev/
-│   │   └── sample1_rev_comp_se_primers.fasta
-│   ├── seqkit/ 
-│   │   └── sample1.fastq.gz ERR8441354.seqtk-seq.fastq.gz
-│   ├── seqkt/ 
-│   │   └── sample1.seqtk-seq.fastq.gz
-│   ├── split/
-│   │   ├── fwd_primer.fasta
-│   │   └── rev_primer.fasta
-│   └── std/
-│       ├── sample1_null_std_primer_out.txt
-│       └── sample1_null_std_primers.fasta
+│   │   └── sample1.fastp.json
+│   ├── taxonomy-summary/
+│   │   ├── DADA2-BOLD/
+│   │   |   ├── ERR8441464_DADA2-BOLD_asv_krona_counts.txt
+│   │   |   ├── ERR8441464_DADA2-BOLD.html
+│   │   |   └── ERR8441464_DADA2-BOLD.mseq
 ├── pipeline_info/
 │   ├── execution_report_YYYY-MM-DD_HH-mm-ss.html
 │   ├── execution_timeline_YYYY-MM-DD_HH-mm-ss.html
 │   ├── execution_trace_YYYY-MM-DD_HH-mm-ss.txt
 │   ├── pipeline_dag_YYYY-MM-DD_HH-mm-ss.html
 │   └── edna_software_mqc_versions.yml
+├── multiqc_report.html
 ├── qc_passed_runs.csv
 └── qc_failed_runs.csv
 ```
@@ -188,7 +158,7 @@ results/
 * **MultiQC Report**: Comprehensive quality control summary across all samples
 * **ASV Sequences**: FASTA files containing called Amplicon Sequence Variants
 * **Taxonomic Classifications**: TSV files with taxonomic assignments for ASVs
-* **Krona Charts**: Interactive HTML visualizations of taxonomic composition
+* **Krona Charts**: Interactive HTML visualisations of taxonomic composition
 * **QC Summary Files**: Lists of samples that passed or failed quality control steps
 
 ### Configuration Profiles

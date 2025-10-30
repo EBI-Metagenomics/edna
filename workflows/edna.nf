@@ -149,7 +149,7 @@ workflow EDNA {
     ch_versions = ch_versions.mix(PROFILE_HMMSEARCH_PFAM.out.versions)
         
     // Filter samples based on reads_percentage threshold and get filtered domtbl
-    ch_filtered_domtbl = PROFILE_HMMSEARCH_PFAM.out.profile
+    ch_passed_samples = PROFILE_HMMSEARCH_PFAM.out.profile
         .filter { meta, tsv_file ->
             def threshold = params.reads_percentage_threshold ?: 0.70
             
@@ -169,8 +169,9 @@ workflow EDNA {
             }
         }
         .map { meta, tsv_file -> meta }
-        .join(PROFILE_HMMSEARCH_PFAM.out.domtbl) 
-        
+
+    ch_filtered_domtbl = ch_passed_samples.join(PROFILE_HMMSEARCH_PFAM.out.domtbl) 
+
     // Run DADA2 ASV generation with filtered samples //
     DADA2_SWF(
         reads_merge_input,
@@ -182,9 +183,6 @@ workflow EDNA {
                                 def key = meta.subMap('id', 'single_end')
                                 return [key, stats_fail]
                             }
-
-    //DADA2_SWF.out.dada2_out.view { "DADA2_SWF.out.dada2_out: ${it}" }
-   
 
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
     MAPSEQ_ASV_KRONA(
@@ -282,21 +280,33 @@ workflow EDNA {
     extended_reads_qc.qc_fail.map { meta, __ -> "${meta.id},min_reads"  }
         .set { min_reads_fails }
 
-    // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, min_reads_fails )
-    all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+    // Extract runs that failed the reads_percentage_threshold parameter
+    PROFILE_HMMSEARCH_PFAM.out.profile
+        .map { meta, tsv_file -> [meta.id, meta] }
+        .join(ch_passed_samples.map { meta -> [meta.id, meta] }, remainder: true)
+        .filter { id, meta, passed_meta ->
+            passed_meta == null  // These are samples that didn't pass
+        }
+        .map { id, meta, __ -> "${meta.id},reads_percentage_fail" }
+        .set { reads_percentage_fails }
 
+    // Save all failed runs to file //
+    all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, min_reads_fails, reads_percentage_fails)
+    all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Extract passed runs, describe whether those passed runs also ASV results //
     DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
-    .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
+    .concat(
+        ch_passed_samples.map { meta -> [["id": meta.id, "single_end": meta.single_end], "qc_pass"] },
+        dada2_stats_fail
+    )
     .groupTuple()
     .map { meta, results ->
         if ( results.size() == 3 ) {
             return "${meta.id},all_results"
         }
         else {
-            if (results[1] == "true"){
+            if (results.find { it == "true" }) {
                 return "${meta.id},dada2_stats_fail"
             } else {
                 return "${meta.id},no_asvs"

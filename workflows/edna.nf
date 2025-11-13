@@ -24,7 +24,8 @@ include { PRIMER_IDENTIFICATION        } from '../subworkflows/local/primer_iden
 include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_primer_cutadapt.nf'
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { DADA2_SWF                    } from '../subworkflows/local/dada2_swf.nf'
-include { MAPSEQ_ASV_KRONA             } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_BOLD         } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_MIDORI           } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
 // Import samplesheetToList from nf-schema //
@@ -62,6 +63,14 @@ workflow EDNA {
         file(params.bold_db_otu, checkIfExists: true),
         file(params.bold_db_mscluster, checkIfExists: true),
         params.dada2_bold_label
+    )
+
+    dada2_krona_midori_tuple = tuple(
+        file(params.midori_db_fasta, checkIfExists: true),
+        file(params.midori_db_tax, checkIfExists: true),
+        file(params.midori_db_otu, checkIfExists: true),
+        file(params.midori_db_mscluster, checkIfExists: true),
+        params.dada2_midori_label
     )
 
     // Initialiase standard primer library for PIMENTO if user-given//
@@ -185,12 +194,18 @@ workflow EDNA {
                             }
 
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
-    MAPSEQ_ASV_KRONA(
+    MAPSEQ_ASV_KRONA_BOLD(
         DADA2_SWF.out.dada2_out,
         dada2_krona_bold_tuple
     )
-    ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
+    ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA_BOLD.out.versions)
 
+    MAPSEQ_ASV_KRONA_MIDORI(
+        DADA2_SWF.out.dada2_out,
+        dada2_krona_midori_tuple
+    )
+    ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA_MIDORI.out.versions)
+    
     //
     // MODULE: MultiQC
     //

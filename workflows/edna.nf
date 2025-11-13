@@ -25,7 +25,7 @@ include { CONCAT_PRIMER_CUTADAPT       } from '../subworkflows/local/concat_prim
 include { PROFILE_HMMSEARCH_PFAM       } from '../subworkflows/local/profile_hmmsearch_pfam/main'
 include { DADA2_SWF                    } from '../subworkflows/local/dada2_swf.nf'
 include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_BOLD         } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_MIDORI           } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_MIDORI       } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { MULTIQC                      } from '../modules/nf-core/multiqc/main'
 
 // Import samplesheetToList from nf-schema //
@@ -82,10 +82,12 @@ workflow EDNA {
     }
 
     FASTQC_RAW(
-        samplesheet
+        samplesheet.map { meta, reads -> 
+            def new_meta = meta.clone()
+            new_meta.id = meta.id + "_raw"
+            [new_meta, reads]
+        }
     )
-    fastqc_raw_html = FASTQC_RAW.out.html
-    fastqc_raw_zip = FASTQC_RAW.out.zip
     ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first())
 
 
@@ -114,10 +116,12 @@ workflow EDNA {
                                 .set { extended_reads_qc }
 
     FASTQC_CLEAN(
-        READS_QC_MERGE.out.reads
+        READS_QC_MERGE.out.reads.map { meta, reads -> 
+            def new_meta = meta.clone()
+            new_meta.id = meta.id + "_clean"
+            [new_meta, reads]
+        }
     )
-    fastqc_clean_html = FASTQC_CLEAN.out.html
-    fastqc_clean_zip = FASTQC_CLEAN.out.zip
     ch_versions = ch_versions.mix(FASTQC_CLEAN.out.versions.first())
 
     // Identify whether primers exist or not in reads, separated by different amplified regions if more than one exists in a run //
@@ -209,6 +213,7 @@ workflow EDNA {
     //
     // MODULE: MultiQC
     //
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_RAW.out.zip.collect{it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_CLEAN.out.zip.collect{it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(READS_QC_MERGE.out.fastp_summary_json.map { it[1] })
     ch_versions = ch_versions.mix(FASTQC_CLEAN.out.versions.first())

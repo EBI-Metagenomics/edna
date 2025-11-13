@@ -9,6 +9,23 @@ report_section_order:
   "EBI-Metagenomics-edna-summary":
     order: -1002
 
+# Use directory-based filtering
+module_order:
+  - fastqc:
+      name: "FastQC (Raw Reads)"
+      anchor: "fastqc_raw"
+      info: "This section shows FastQC results before quality filtering."
+      path_filters:
+        - "*/fastqc_raw/*"
+        - "*raw*fastqc*"
+  - fastqc:
+      name: "FastQC (Clean Reads)"
+      anchor: "fastqc_clean"
+      info: "This section shows FastQC results after quality filtering."
+      path_filters:
+        - "*/fastqc_clean/*"
+        - "*clean*fastqc*"
+        
 export_plots: true
 
 disable_version_detection: true

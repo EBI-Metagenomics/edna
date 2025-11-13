@@ -7,17 +7,10 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import argparse
 from collections import defaultdict
 import logging
-
 import pandas as pd
 
 logging.basicConfig(level=logging.DEBUG)
@@ -31,10 +24,10 @@ def parse_args():
     parser.add_argument(
         "-l",
         "--label",
-        choices=["DADA2-BOLD", "DADA2-PR2"],
+        choices=["DADA2-BOLD", "DADA2-MIDORI"],
         required=True,
         type=str,
-        help="Database label - either DADA2-BOLD or DADA2-PR2",
+        help="Database label - either DADA2-BOLD or DADA2-MIDORI",
     )
     parser.add_argument("-s", "--sample", required=True, type=str, help="Sample ID")
 
@@ -46,57 +39,6 @@ def parse_args():
 
     return input, label, sample
 
-
-def parse_label(label):
-    bold_short_ranks = ["sk__", "k__", "p__", "c__", "o__", "f__", "g__", "s__"]
-    pr2_short_ranks = [
-        "d__",
-        "sg__",
-        "dv__",
-        "sdv__",
-        "c__",
-        "o__",
-        "f__",
-        "g__",
-        "s__",
-    ]
-
-    bold_long_ranks = [
-        "Superkingdom",
-        "Kingdom",
-        "Phylum",
-        "Class",
-        "Order",
-        "Family",
-        "Genus",
-        "Species",
-    ]
-    pr2_long_ranks = [
-        "Domain",
-        "Supergroup",
-        "Division",
-        "Subdivision",
-        "Class",
-        "Order",
-        "Family",
-        "Genus",
-        "Species",
-    ]
-
-    chosen_short_ranks = ""
-    chosen_long_ranks = ""
-
-    if label == "DADA2-BOLD":
-        chosen_short_ranks = bold_short_ranks
-        chosen_long_ranks = bold_long_ranks
-    elif label == "DADA2-PR2":
-        chosen_short_ranks = pr2_short_ranks
-        chosen_long_ranks = pr2_long_ranks
-    else:
-        logging.error("Incorrect database label - exiting.")
-        exit(1)
-
-    return chosen_short_ranks, chosen_long_ranks
 
 
 def parse_mapseq(mseq_df, short_ranks, long_ranks):
@@ -126,7 +68,6 @@ def parse_mapseq(mseq_df, short_ranks, long_ranks):
     res_df = pd.DataFrame.from_dict(res_dict)
 
     return res_df
-
 
 def process_blank_tax_ends(res_df, ranks):
     # Necessary function as we want to replace consecutive blank assignments that start at the last rank as NAs
@@ -163,10 +104,21 @@ def process_blank_tax_ends(res_df, ranks):
 
 def main():
     input, label, sample = parse_args()
-
+    
     mseq_df = pd.read_csv(input, header=0, delim_whitespace=True, usecols=[0, 12])
 
-    short_ranks, long_ranks = parse_label(label)
+    short_ranks = ["sk__", "k__", "p__", "c__", "o__", "f__", "g__", "s__"]
+    long_ranks = [
+        "Superkingdom",
+        "Kingdom",
+        "Phylum",
+        "Class",
+        "Order",
+        "Family",
+        "Genus",
+        "Species",
+    ]
+
     res_df = parse_mapseq(mseq_df, short_ranks, long_ranks)
     final_res_df = process_blank_tax_ends(res_df, short_ranks)
 

@@ -200,6 +200,58 @@
                 }
             }
         },
+        "midori_database_options": {
+            "title": "MIDORI Database Options",
+            "type": "object",
+            "fa_icon": "fas fa-database",
+            "description": "Configuration options for MIDORI (Molecular Identification Database) database files and parameters.",
+            "properties": {
+                "midori_db_fasta": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to MIDORI database FASTA file",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "help_text": "Path to the MIDORI COI reference database FASTA file used for taxonomic classification.",
+                    "default": "/hps/nobackup/rdf/metagenomics/service-team/collaborators/christina/MIDORI2_SINTAX_longest_sp/MIDORI2_LONGEST_NUC_SP_GB268_CO1_SINTAX_final.fasta"
+                },
+                "midori_db_tax": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to MIDORI database taxonomy file",
+                    "pattern": "^\\S+\\.txt$",
+                    "help_text": "Path to the MIDORI taxonomy file containing taxonomic information for the reference sequences.",
+                    "default": "/hps/nobackup/rdf/metagenomics/service-team/collaborators/christina/MIDORI2_SINTAX_longest_sp/taxonomy_MIDORI2.txt"
+                },
+                "midori_db_otu": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to MIDORI database OTU file",
+                    "pattern": "^\\S+\\.otu$",
+                    "help_text": "Path to the MIDORI OTU (Operational Taxonomic Unit) file for clustering analysis.",
+                    "default": "/hps/nobackup/rdf/metagenomics/service-team/ref-dbs/amplicon_pipeline/SILVA-SSU/138.1/SILVA-SSU.otu"
+                },
+                "midori_db_mscluster": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to MIDORI database mscluster file",
+                    "pattern": "^\\S+\\.mscluster$",
+                    "help_text": "Path to the MIDORI mscluster file used for sequence clustering operations.",
+                    "default": "/hps/nobackup/rdf/metagenomics/service-team/collaborators/christina/MIDORI2_SINTAX_longest_sp/MIDORI2_LONGEST_NUC_SP_GB268_CO1_SINTAX_final.fasta.mscluster"
+                },
+                "midori_label": {
+                    "type": "string",
+                    "description": "Label for MIDORI database classification",
+                    "default": "MIDORI",
+                    "help_text": "Label used to identify the MIDORI database classification method in output files."
+                },
+                "dada2_midori_label": {
+                    "type": "string",
+                    "description": "Label for DADA2-MIDORI database classification",
+                    "default": "DADA2-MIDORI",
+                    "help_text": "Label used to identify the DADA2-MIDORI database classification method in output files."
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
